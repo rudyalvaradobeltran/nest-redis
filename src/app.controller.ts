@@ -1,4 +1,12 @@
-import { Controller, Get, Inject, CACHE_MANAGER } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Inject,
+  CACHE_MANAGER,
+  UseInterceptors,
+  CacheInterceptor,
+  CacheKey,
+} from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { Profile } from './common/models/Profile';
 
@@ -11,6 +19,20 @@ export class AppController {
   };
 
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+
+  @UseInterceptors(CacheInterceptor)
+  @Get('interceptorAutoCacheExample')
+  interceptorAutoCacheExample() {
+    // Note: 'Error: "undefined" is not a cacheable value' after reset.
+    return this.fakeModel;
+  }
+
+  @Get('cacheKeyExample')
+  @CacheKey('my-auto-cache')
+  // CacheTTL(240)
+  cacheKeyExample() {
+    return this.fakeModel;
+  }
 
   @Get('getCacheString')
   async getSimpleString() {
